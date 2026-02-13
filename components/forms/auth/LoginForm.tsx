@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/services/auth/auth.services";
-import Input from "../../ui/Input";
-import Button from "../../ui/Button";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface LoginFormData {
   username: string;
@@ -68,9 +68,7 @@ export default function LoginForm() {
             required
           />
 
-          <Button type="submit" isLoading={isLoading} fullWidth>
-            შესვლა
-          </Button>
+          <Button type="submit">შესვლა</Button>
         </form>
       </div>
     </div>
