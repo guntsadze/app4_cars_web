@@ -3,9 +3,10 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Input from "../../ui/Input";
-import Button from "../../ui/Button";
 import { companyRegisterService } from "@/services/auth/company.register.services";
+import { Button } from "@/components/ui/button";
+import { FormInput } from "@/components/shared/FormInput";
+import { FormWrapper } from "@/components/shared/FormWrapper";
 
 interface CreateCompanyData {
   companyName: string;
@@ -22,98 +23,98 @@ export default function CompanyRegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { control, handleSubmit } = useForm<CreateCompanyData>({});
+  const form = useForm<CreateCompanyData>({
+    defaultValues: {
+      companyName: "",
+      identifCode: "",
+      address: "",
+      leagalAddress: "",
+      phone: "",
+      email: "",
+      licenseCode: "",
+    },
+  });
 
   const onSubmit = async (data: CreateCompanyData) => {
     try {
       setIsLoading(true);
       setError(null);
       await companyRegisterService.register(data);
-      if (!error) router.push("/login");
+      router.push("/login");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "ავტორიზაცია ვერ მოხერხდა");
+      setError(err instanceof Error ? err.message : "რეგისტრაცია ვერ მოხერხდა");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
-      <div className="w-full max-w-md bg-gray-900 rounded-xl shadow-2xl border border-gray-800 p-8">
-        {error && (
-          <div className="bg-red-900/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm">
-            {error}
-          </div>
-        )}
+    <FormWrapper
+      form={form}
+      onSubmit={onSubmit}
+      title="კომპანიის რეგისტრაცია"
+      error={error}
+      className="max-w-xl" // რადგან ბევრი ველია, ცოტა უფრო ფართო იყოს
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormInput
+          control={form.control}
+          name="companyName"
+          label="კომპანიის სახელი"
+          placeholder="შპს App4Cars"
+        />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <Input
-            name="companyName"
-            control={control}
-            label="კომპანიის სახელი"
-            type="text"
-            placeholder="შპს App4Cars"
-            required
-          />
+        <FormInput
+          control={form.control}
+          name="identifCode"
+          label="საიდენტ. კოდი"
+          type="number"
+          placeholder="01001092673"
+        />
 
-          <Input
-            name="identifCode"
-            control={control}
-            label="საიდენტ. კოდი"
-            type="number"
-            placeholder="01001092673"
-            required
-          />
+        <FormInput
+          control={form.control}
+          name="address"
+          label="მისამართი"
+          placeholder="თბილისი"
+        />
 
-          <Input
-            name="address"
-            control={control}
-            label="მისამართი"
-            type="text"
-            placeholder="თბილისი"
-            required
-          />
+        <FormInput
+          control={form.control}
+          name="leagalAddress"
+          label="ფაქტიური მისამართი"
+          placeholder="თბილისი"
+        />
 
-          <Input
-            name="leagalAddress"
-            control={control}
-            label="ფაქტიური მისამართი"
-            type="text"
-            placeholder="თბილისი"
-            required
-          />
+        <FormInput
+          control={form.control}
+          name="phone"
+          label="ტელეფონი"
+          type="number"
+          placeholder="599..."
+        />
 
-          <Input
-            name="phone"
-            control={control}
-            label="ტელეფონი"
-            type="number"
-            placeholder="თბილისი"
-            required
-          />
+        <FormInput
+          control={form.control}
+          name="email"
+          label="ელ-ფოსტა"
+          type="email"
+          placeholder="info@example.com"
+        />
 
-          <Input
-            name="email"
-            control={control}
-            label="ელ-ფოსტა"
-            type="email"
-            placeholder="YyT0A@example.com"
-            required
-          />
-
-          <Input
+        <div className="md:col-span-2">
+          <FormInput
+            control={form.control}
             name="licenseCode"
-            control={control}
             label="ლიცენზიის კოდი"
-            type="text"
-            required
+            placeholder="შეიყვანეთ კოდი"
           />
-
-          <Button type="submit" isLoading={isLoading} fullWidth>
-            რეგისტრაცია
-          </Button>
-        </form>
+        </div>
       </div>
-    </div>
+
+      <Button type="submit" className="w-full mt-2" disabled={isLoading}>
+        {isLoading ? "მიმდინარეობს რეგისტრაცია..." : "რეგისტრაცია"}
+      </Button>
+    </FormWrapper>
   );
 }

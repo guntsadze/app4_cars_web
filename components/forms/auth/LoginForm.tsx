@@ -5,7 +5,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/services/auth/auth.services";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { FormInput } from "@/components/shared/FormInput";
+import { FormWrapper } from "@/components/shared/FormWrapper";
 
 interface LoginFormData {
   username: string;
@@ -17,11 +18,8 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { control, handleSubmit } = useForm<LoginFormData>({
-    defaultValues: {
-      username: "",
-      password: "",
-    },
+  const form = useForm<LoginFormData>({
+    defaultValues: { username: "", password: "" },
   });
 
   const onSubmit = async (data: LoginFormData) => {
@@ -30,7 +28,7 @@ export default function LoginForm() {
       setError(null);
       const response = await authService.login(data);
       if (response?.companyNotExists) {
-        router.push("/companyregister");
+        return router.push("/companyregister");
       }
       router.push("/car");
     } catch (err) {
@@ -41,36 +39,30 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
-      <div className="w-full max-w-md bg-gray-900 rounded-xl shadow-2xl border border-gray-800 p-8">
-        {error && (
-          <div className="bg-red-900/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm">
-            {error}
-          </div>
-        )}
+    <FormWrapper
+      form={form}
+      onSubmit={onSubmit}
+      title="ავტორიზაცია"
+      error={error}
+    >
+      <FormInput
+        control={form.control}
+        name="username"
+        label="მომხმარებელი"
+        placeholder="gunstadze"
+      />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <Input
-            name="username"
-            control={control}
-            label="მომხმარებელი"
-            type="text"
-            placeholder="gunstadze"
-            required
-          />
+      <FormInput
+        control={form.control}
+        name="password"
+        label="პაროლი"
+        type="password"
+        placeholder="••••••••"
+      />
 
-          <Input
-            name="password"
-            control={control}
-            label="პაროლი"
-            type="password"
-            placeholder="••••••••"
-            required
-          />
-
-          <Button type="submit">შესვლა</Button>
-        </form>
-      </div>
-    </div>
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading ? "მიმდინარეობს..." : "შესვლა"}
+      </Button>
+    </FormWrapper>
   );
 }
