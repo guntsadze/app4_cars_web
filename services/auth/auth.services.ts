@@ -12,18 +12,16 @@ export interface AuthResponse {
     id: string;
     username: string;
   };
+  companyNotExists: boolean;
 }
 
 class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     const response = await api.post(ACCOUNT_lOGIN, credentials);
 
-    const token = response?.token;
-    const user = response?.user;
+    const token = response?.accessToken;
 
-    if (user && typeof window !== "undefined") {
-      localStorage.setItem("user", JSON.stringify(user));
-    }
+    console.log(token);
 
     if (token && typeof document !== "undefined") {
       Cookie.set("token", token);
@@ -33,7 +31,6 @@ class AuthService {
   }
 
   logout() {
-    localStorage.removeItem("user");
     Cookie.remove("token");
     window.location.href = "/login";
   }

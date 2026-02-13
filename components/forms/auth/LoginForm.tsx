@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/services/auth/auth.services";
-import Input from "../ui/Input";
-import Button from "../ui/Button";
+import Input from "../../ui/Input";
+import Button from "../../ui/Button";
 
 interface LoginFormData {
   username: string;
@@ -28,8 +28,11 @@ export default function LoginForm() {
     try {
       setIsLoading(true);
       setError(null);
-      await authService.login(data);
-      router.push("/dashboard");
+      const response = await authService.login(data);
+      if (response?.companyNotExists) {
+        router.push("/companyregister");
+      }
+      router.push("/car");
     } catch (err) {
       setError(err instanceof Error ? err.message : "ავტორიზაცია ვერ მოხერხდა");
     } finally {
