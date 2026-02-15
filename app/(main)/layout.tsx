@@ -1,5 +1,6 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { Providers } from "./providers";
 
 export default function MainLayout({
   children,
@@ -12,7 +13,7 @@ export default function MainLayout({
         <AppSidebar />
         <main className="flex-1 overflow-y-auto bg-background p-6 transition-colors duration-300">
           <SidebarTrigger className="mb-4" />
-          {children}
+          <Providers>{children}</Providers>
         </main>
       </div>
     </SidebarProvider>

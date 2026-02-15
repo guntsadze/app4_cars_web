@@ -11,10 +11,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-// T აქ არის ფორმის მონაცემების ტიპი (მაგ: LoginFormData)
 interface FormInputProps<T extends FieldValues> {
   control: Control<T>;
-  name: Path<T>;
+  name: any;
   label?: string;
   placeholder?: string;
   type?: HTMLInputTypeAttribute;
