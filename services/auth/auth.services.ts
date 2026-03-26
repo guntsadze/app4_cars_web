@@ -1,5 +1,5 @@
-import { api } from "@/libs/api";
-import { ACCOUNT_lOGIN } from "@/libs/constants/endpoints";
+import { api } from "@/lib/api";
+import { ACCOUNT_lOGIN } from "@/lib/constants/endpoints";
 import Cookie from "js-cookie";
 
 export interface LoginCredentials {

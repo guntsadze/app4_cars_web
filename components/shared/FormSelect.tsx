@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/libs/api";
+import { api } from "@/lib/api";
 
 interface FormSelectProps<T extends FieldValues> {
   control: Control<T>;

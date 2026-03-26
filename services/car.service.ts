@@ -1,4 +1,4 @@
 import { BaseCrudService } from "./base.service";
-import { CARS_ENDPOINT } from "@/libs/constants/endpoints";
+import { CAR_ENDPOINT } from "@/lib/constants/endpoints";
 
-export const carService = new BaseCrudService(CARS_ENDPOINT);
+export const carService = new BaseCrudService(CAR_ENDPOINT);

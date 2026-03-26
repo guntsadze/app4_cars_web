@@ -1,6 +1,6 @@
-import { api } from "@/libs/api";
+import { api } from "@/lib/api";
 import { BaseCrudService } from "./base.service";
-import { COMPANY_ENDPOINT } from "@/libs/constants/endpoints";
+import { COMPANY_ENDPOINT } from "@/lib/constants/endpoints";
 
 class CompanyService extends BaseCrudService {
   constructor() {

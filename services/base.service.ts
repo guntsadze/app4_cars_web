@@ -1,11 +1,10 @@
-import { api } from "@/libs/api";
+import { api } from "@/lib/api";
 
 export class BaseCrudService {
   constructor(protected endpoint: string) {}
 
-  async getList() {
-    const response = await api.get(`${this.endpoint}/GetList`);
-    return response;
+  async getList(params?: any) {
+    return await api.get(`${this.endpoint}/GetList`, params);
   }
 
   async getById(id: string) {

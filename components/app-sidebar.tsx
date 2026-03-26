@@ -1,53 +1,116 @@
-"use client";
-
-import { Home, Car, Settings, LogOut, Building2, User2 } from "lucide-react";
+import {
+  Car,
+  ChevronRight,
+  Database,
+  ShieldAlert,
+  Settings,
+  LogOut,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarRail,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { ModeToggle } from "./ui/mode-toggle";
-
-const menuItems = [
-  { title: "ავტომობილები", url: "/car", icon: Car },
-  { title: "კომპანია", url: "/company", icon: Building2 },
-  { title: "რეგიონი", url: "/region", icon: Building2 },
-  { title: "სისტემის მომხმარებელი", url: "/user", icon: User2 },
-];
+import { usePathname } from "next/navigation";
+import { menuData } from "@/lib/menu-data";
+import Link from "next/link";
+import { authService } from "@/services/auth/auth.services";
+import { cn } from "@/lib/utils";
 
 export function AppSidebar() {
+  const pathname = usePathname();
+
   return (
-    <Sidebar variant="sidebar" collapsible="icon">
+    <Sidebar collapsible="icon" className="border-r border-border">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>App4Cars</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <Link href={item.url}>
-                      <item.icon className="w-5 h-5" />
+          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
+            App4Cars
+          </SidebarGroupLabel>
+          <SidebarMenu>
+            {menuData.map((item) => (
+              <Collapsible
+                key={item.title}
+                asChild
+                defaultOpen={item.isActive}
+                className="group/collapsible"
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      isActive={item.items.some((sub) => sub.url === pathname)}
+                    >
+                      <item.icon className="size-5" />
                       <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+
+                      <ChevronRight className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {item.items?.map((subItem) => (
+                        <SidebarMenuSubItem key={subItem.title}>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={pathname === subItem.url}
+                            className={cn(
+                              "transition-colors",
+                              pathname === subItem.url
+                                ? "opacity-100 text-primary"
+                                : "opacity-70 hover:opacity-100",
+                            )}
+                          >
+                            <Link href={subItem.url}>
+                              <span>{subItem.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
                 </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
+              </Collapsible>
+            ))}
+          </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
-        <ModeToggle />
+      <SidebarFooter className="border-t border-border p-2">
+        <div className="flex flex-col gap-2">
+          <ModeToggle />
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={authService.logout}
+                className="group-data-[collapsible=icon]:justify-center text-muted-foreground hover:text-foreground"
+                tooltip="გასვლა"
+              >
+                <LogOut className="size-5 shrink-0" />
+                <span className="group-data-[collapsible=icon]:hidden">
+                  გასვლა
+                </span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </div>
       </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   );
 }

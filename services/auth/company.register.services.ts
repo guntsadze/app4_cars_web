@@ -1,5 +1,5 @@
-import { api } from "@/libs/api";
-import { COMPANY_REGISTER } from "@/libs/constants/endpoints";
+import { api } from "@/lib/api";
+import { COMPANY_REGISTER } from "@/lib/constants/endpoints";
 
 class CompanyRegisterService {
   async register(data: any) {
