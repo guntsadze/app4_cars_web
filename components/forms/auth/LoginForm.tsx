@@ -41,7 +41,7 @@ export default function LoginForm() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-[#030712] selection:bg-red-500/30">
-      {/* ანიმაციური ბადე (Grid) */}
+      {/* ანიმაციური ბად (Grid) */}
       <div className="absolute inset-0 z-0 opacity-20 [background-image:linear-gradient(rgba(239,68,68,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(239,68,68,0.1)_1px,transparent_1px)] [background-size:100px_100px] [animation:grid_20s_linear_infinite]" />
 
       {/* მცურავი აიკონები დეკორისთვის */}
