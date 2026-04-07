@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, ReactNode, MouseEvent } from "react";
+import { useState, useMemo, ReactNode, MouseEvent } from "react";
 import {
   Table,
   TableBody,
@@ -11,11 +11,13 @@ import {
 } from "@/components/ui/table";
 import { BaseCrudService } from "@/services/base.service";
 import { Button } from "@/components/ui/button";
-import { Trash2, Loader2, Edit, Copy } from "lucide-react";
+import { Trash2, Loader2, Edit } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import CustomToolbar from "./CustomToolbat";
+import { format } from "date-fns";
+import { getStatusStyles } from "@/app/(main)/(fines)/allFines/helpers";
 
 interface Column {
   header: string;
@@ -33,6 +35,10 @@ interface DataTableProps {
   showEdit?: boolean;
   queryKeyPrefix?: string[];
   moduleId?: string;
+  canCrud?: boolean;
+  initialDateRange?: any;
+  fetchFn?: (params?: any) => Promise<any>;
+  renderActions?: (row: any) => ReactNode;
 }
 
 export function DataTable({
@@ -45,29 +51,45 @@ export function DataTable({
   showEdit = true,
   queryKeyPrefix = [],
   moduleId,
+  canCrud = true,
+  initialDateRange,
+  fetchFn,
+  renderActions,
 }: DataTableProps) {
   const queryClient = useQueryClient();
-  const [queryParams, setQueryParams] = useState<Record<string, string>>({});
+  const [queryParams, setQueryParams] = useState<
+    Record<string, string | undefined>
+  >(() => {
+    if (initialDateRange?.from && initialDateRange?.to) {
+      return {
+        dateFrom: format(initialDateRange.from, "yyyy-MM-dd"),
+        dateTo: format(initialDateRange.to, "yyyy-MM-dd"),
+      };
+    }
+    return {};
+  });
   const [selectedRows, setSelectedRows] = useState<Set<string | number>>(
     new Set(),
   );
   const [lastSelectedRow, setLastSelectedRow] = useState<any>(null);
 
   const service = useMemo(() => new BaseCrudService(endpoint), [endpoint]);
+  console.log("🚀 ~ DataTable ~ service:", service);
   const queryKey = useMemo(
     () => [...queryKeyPrefix, endpoint, "list"],
     [queryKeyPrefix, endpoint],
   );
 
-  // --- მონაცემების წამოღება ---
-  // const { data, isLoading, isError, error, refetch } = useQuery({
-  //   queryKey: queryKey,
-  //   queryFn: () => service.getList(),
+  // const { data, isLoading, refetch } = useQuery({
+  //   queryKey: [endpoint, "list", queryParams], // Params ჩადებულია Key-ში, რაც ავტომატურად ათრიგერებს Refetch-ს
+  //   queryFn: () => service.getList(queryParams),
   // });
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: [endpoint, "list", queryParams], // Params ჩადებულია Key-ში, რაც ავტომატურად ათრიგერებს Refetch-ს
-    queryFn: () => service.getList(queryParams),
+    queryKey: [endpoint, "list", queryParams],
+    // თუ fetchFn გადმოცემულია, გამოიყენებს მას, თუ არა - სერვისის getList-ს
+    queryFn: () =>
+      fetchFn ? fetchFn(queryParams) : service.getList(queryParams),
   });
 
   // --- წაშლის მუტაცია ---
@@ -135,6 +157,8 @@ export function DataTable({
         onFilter={handleDateFilter}
         onRefreshTable={refetch}
         showAdd={showAdd}
+        canCrud={canCrud}
+        initialDateRange={initialDateRange}
       />
 
       <div className="relative overflow-auto">
@@ -155,9 +179,11 @@ export function DataTable({
                   {col.header}
                 </TableHead>
               ))}
-              {(showEdit || showDelete) && (
-                <TableHead className="text-right px-4">მოქმედება</TableHead>
-              )}
+              {showEdit ||
+                showDelete ||
+                (canCrud && (
+                  <TableHead className="text-right px-4">მოქმედება</TableHead>
+                ))}
             </TableRow>
           </TableHeader>
 
@@ -181,63 +207,76 @@ export function DataTable({
                 </TableCell>
               </TableRow>
             ) : (
-              data?.map((row: any, rowIndex: number) => (
-                <TableRow
-                  key={row.id || rowIndex}
-                  className={`cursor-pointer transition-colors hover:bg-muted/50 ${
-                    selectedRows.has(row.id) ? "bg-muted" : ""
-                  }`}
-                  onClick={() => toggleRow(row)}
-                  onDoubleClick={() => onEdit?.(row)}
-                >
-                  <TableCell
-                    className="px-4"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Checkbox
-                      checked={selectedRows.has(row.id)}
-                      onCheckedChange={() => toggleRow(row)}
-                    />
-                  </TableCell>
+              data?.map((row: any, rowIndex: number) => {
+                // 1. გამოვითვალოთ სტატუსის სტილი
+                const statusClass = getStatusStyles(row.status);
+                const isSelected = selectedRows.has(row.id);
 
-                  {columns.map((col, colIndex) => (
-                    <TableCell key={colIndex} className="py-2">
-                      {col.render
-                        ? col.render(row[col.accessor as string], row)
-                        : typeof col.accessor === "function"
-                          ? col.accessor(row)
-                          : row[col.accessor as string]}
+                return (
+                  <TableRow
+                    key={row.id || rowIndex}
+                    className={`cursor-pointer transition-colors ${statusClass} ${
+                      isSelected ? "bg-muted shadow-inner" : ""
+                    }`}
+                    onClick={() => toggleRow(row)}
+                    onDoubleClick={() => onEdit?.(row)}
+                  >
+                    <TableCell
+                      className="px-4"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => toggleRow(row)}
+                      />
                     </TableCell>
-                  ))}
 
-                  <TableCell
-                    className="text-right px-4 space-x-1"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {showEdit && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-blue-500 hover:bg-blue-50"
-                        onClick={() => onEdit?.(row)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                    )}
-                    {showDelete && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:bg-destructive/5"
-                        onClick={(e) => handleDelete(e, row.id)}
-                        disabled={deleteMutation.isPending}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
+                    {columns.map((col, colIndex) => (
+                      <TableCell key={colIndex} className="py-2 font-medium">
+                        {col.render
+                          ? col.render(row[col.accessor as string], row)
+                          : typeof col.accessor === "function"
+                            ? col.accessor(row)
+                            : row[col.accessor as string]}
+                      </TableCell>
+                    ))}
+
+                    <TableCell
+                      className="text-right px-4 space-x-1"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {renderActions
+                        ? renderActions(row)
+                        : // თუ არა, ვტოვებთ ძველ Crud ღილაკებს (Trash, Edit)
+                          canCrud && (
+                            <>
+                              {showEdit && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-blue-500 hover:bg-blue-100"
+                                  onClick={() => onEdit?.(row)}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                              )}
+                              {showDelete && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-destructive hover:bg-red-100"
+                                  onClick={(e) => handleDelete(e, row.id)}
+                                  disabled={deleteMutation.isPending}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </>
+                          )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>

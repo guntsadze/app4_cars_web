@@ -1,0 +1,16 @@
+export const UserPermissionEnum = {
+  Car: 100,
+  CarType: 200,
+  Region: 300,
+  Company: 400,
+  // ServiceCenter: 500,
+  Fine: 600,
+  // PoliceFines: 700,
+  // ParkingFines: 800,
+  ProtocolFine: 805,
+  // BatumiParking: 850,
+  KutaisiParking: 900,
+  FailureLogs: 1000,
+  NoFinesFound: 1100,
+  User: 1200,
+};

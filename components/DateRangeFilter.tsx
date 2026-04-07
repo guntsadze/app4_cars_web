@@ -10,7 +10,7 @@ import {
   endOfYear,
 } from "date-fns";
 import { ka } from "date-fns/locale";
-import { Calendar as CalendarIcon, Check } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -22,14 +22,30 @@ import {
 
 interface DateRangeFilterProps {
   onFilter: (dateFrom: string, dateTo: string) => void;
+  initialDateRange?: DateRange;
 }
 
-export default function DateRangeFilter({ onFilter }: DateRangeFilterProps) {
+export default function DateRangeFilter({
+  onFilter,
+  initialDateRange,
+}: DateRangeFilterProps) {
+  console.log("🚀 ~ DateRangeFilter ~ initialDateRange:", initialDateRange);
   const [open, setOpen] = React.useState(false);
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date(),
-    to: new Date(),
-  });
+
+  // ვიყენებთ initialDateRange-ს თუ ის არსებობს, თუ არა - default მნიშვნელობას
+  const [date, setDate] = React.useState<DateRange | undefined>(
+    initialDateRange || {
+      from: new Date(),
+      to: new Date(),
+    },
+  );
+
+  // თუ გარედან შეცვლილი მნიშვნელობის "დასინქრონება" გინდათ კომპონენტის შიგნით
+  React.useEffect(() => {
+    if (initialDateRange) {
+      setDate(initialDateRange);
+    }
+  }, [initialDateRange]);
 
   const handleApply = () => {
     if (date?.from && date?.to) {
@@ -44,7 +60,7 @@ export default function DateRangeFilter({ onFilter }: DateRangeFilterProps) {
     const today = new Date();
     switch (preset) {
       case "today":
-        setDate(undefined);
+        setDate({ from: today, to: today });
         break;
       case "lastWeek":
         setDate({ from: subDays(today, 7), to: today });
@@ -86,15 +102,14 @@ export default function DateRangeFilter({ onFilter }: DateRangeFilterProps) {
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0 shadow-2xl" align="end">
           <div className="flex flex-col md:flex-row">
-            {/* სწრაფი შერჩევის მენიუ (Presets) */}
-            <div className="flex flex-col border-b md:border-b-0 md:border-r  p-2 sm:w-[160px]">
+            <div className="flex flex-col border-b md:border-b-0 md:border-r p-2 sm:w-[160px]">
               <div className="px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 შერჩევა
               </div>
               <Button
                 variant="ghost"
                 size="sm"
-                className="justify-start font-normal hover:bg-slate-900 text-slate-300"
+                className="justify-start font-normal"
                 onClick={() => setPreset("today")}
               >
                 დღეს
@@ -102,7 +117,7 @@ export default function DateRangeFilter({ onFilter }: DateRangeFilterProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                className="justify-start font-normal hover:bg-slate-900 text-slate-300"
+                className="justify-start font-normal"
                 onClick={() => setPreset("lastWeek")}
               >
                 წინა კვირა
@@ -110,7 +125,7 @@ export default function DateRangeFilter({ onFilter }: DateRangeFilterProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                className="justify-start font-normal hover:bg-slate-900 text-slate-300"
+                className="justify-start font-normal"
                 onClick={() => setPreset("lastMonth")}
               >
                 წინა თვე
@@ -118,7 +133,7 @@ export default function DateRangeFilter({ onFilter }: DateRangeFilterProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                className="justify-start font-normal hover:bg-slate-900 text-slate-300"
+                className="justify-start font-normal"
                 onClick={() => setPreset("lastYear")}
               >
                 წინა წელი
@@ -126,7 +141,7 @@ export default function DateRangeFilter({ onFilter }: DateRangeFilterProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                className="justify-start font-normal hover:bg-slate-900 text-slate-300"
+                className="justify-start font-normal"
                 onClick={() => setDate(undefined)}
               >
                 გასუფთავება
@@ -143,7 +158,7 @@ export default function DateRangeFilter({ onFilter }: DateRangeFilterProps) {
                 onSelect={setDate}
                 numberOfMonths={2}
                 locale={ka}
-                className="bg-transparent text-slate-200"
+                className="bg-transparent"
               />
 
               {/* ქვედა ღილაკები */}

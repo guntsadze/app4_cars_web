@@ -32,6 +32,8 @@ interface CustomToolbarProps {
   moduleId?: string;
   onSearch?: (value: string) => void;
   showAdd?: boolean;
+  canCrud?: boolean;
+  initialDateRange?: any;
 }
 
 export default function CustomToolbar({
@@ -44,11 +46,9 @@ export default function CustomToolbar({
   moduleId,
   onSearch,
   showAdd,
+  canCrud,
+  initialDateRange,
 }: CustomToolbarProps) {
-  // const { hasCrud } = usePermissions();
-  // const canCrud = hasCrud(moduleId);
-  const canCrud = true; // დროებით, სანამ hook-ს ჩართავ
-
   return (
     <TooltipProvider delayDuration={300}>
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-3 border-b bg-card">
@@ -97,7 +97,10 @@ export default function CustomToolbar({
         {/* მარჯვენა მხარე: ფილტრები და ექსპორტი */}
         <div className="flex items-center gap-2 flex-wrap">
           <Suspense fallback={<Loader />}>
-            <DateRangeFilter onFilter={onFilter} />
+            <DateRangeFilter
+              onFilter={onFilter}
+              initialDateRange={initialDateRange}
+            />
           </Suspense>
           <div className="h-6 w-[1px] bg-border mx-1" /> {/* გამყოფი ხაზი */}
           <Tooltip>

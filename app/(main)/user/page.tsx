@@ -1,7 +1,7 @@
-import React from "react";
+import { UserView } from "./UserView";
 
-function page() {
-  return <div>user</div>;
+function UserPage() {
+  return <UserView />;
 }
 
-export default page;
+export default UserPage;

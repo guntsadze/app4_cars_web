@@ -5,7 +5,7 @@ export const menuData = [
     title: "ჯარიმები",
     icon: ShieldAlert,
     items: [
-      { title: "ყველა ჯარიმა", url: "/fine" },
+      { title: "ყველა ჯარიმა", url: "/allFines" },
       { title: "პროტოკოლის ჯარიმები", url: "/protocolFine" },
       { title: "ქუთაისი პარკინგი", url: "/kutaisiParking" },
     ],
