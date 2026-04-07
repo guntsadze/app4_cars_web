@@ -53,6 +53,7 @@ export function UserPermissionsDialog({ open, onClose, user }: any) {
     setLoading(true);
     try {
       const res = await userPermissionService.getByUserId(user.id);
+      console.log("🚀 ~ loadPermissions ~ res:", res);
       const loadedPermissions = res || [];
 
       const allPermissions = Object.entries(UserPermissionEnum).map(
@@ -89,10 +90,24 @@ export function UserPermissionsDialog({ open, onClose, user }: any) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await userPermissionService.updatePermissions(user.id, permissions);
-      toast.success("ცვლილებები შენახულია");
+      const payload = {
+        idUser: user.id,
+        permissions: permissions.map((p) => ({
+          idUser: p.idUser,
+          menuId: p.menuId,
+          menuName: p.menuName,
+          canRead: p.canRead,
+          canCrud: p.canCrud,
+          ...(p.id && { id: p.id }),
+        })),
+      };
+
+      await userPermissionService.updatePermissions(payload);
+
+      toast.success("ცვლილებები წარმატებით შენახულია");
       onClose();
     } catch (err) {
+      console.error("Save Error:", err);
       toast.error("შენახვა ვერ მოხერხდა");
     } finally {
       setSaving(false);

@@ -17,6 +17,7 @@ interface FormCheckboxProps {
   label: string;
   description?: string;
   className?: string;
+  defaultValue?: boolean;
 }
 
 export function FormCheckbox({
@@ -25,11 +26,13 @@ export function FormCheckbox({
   label,
   description,
   className,
+  defaultValue,
 }: FormCheckboxProps) {
   return (
     <FormField
       control={control}
       name={name}
+      defaultValue={defaultValue}
       render={({ field }) => (
         <FormItem
           className={cn(
