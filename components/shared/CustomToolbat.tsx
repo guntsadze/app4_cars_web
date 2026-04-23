@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/tooltip";
 import DateRangeFilter from "../DateRangeFilter";
 import Loader from "./Loader";
+import { usePermission } from "@/hooks/usePermission";
+import { usePathname } from "next/navigation";
 
 interface CustomToolbarProps {
   onAdd?: () => void;
@@ -46,9 +48,14 @@ export default function CustomToolbar({
   moduleId,
   onSearch,
   showAdd,
-  canCrud,
+  // canCrud,
   initialDateRange,
 }: CustomToolbarProps) {
+  const pathname = usePathname().replace(/^\//, "");
+  console.log("🚀 ~ CustomToolbar ~ routeName:", pathname);
+  const { canCrud } = usePermission(pathname);
+  console.log("🚀 ~ CustomToolbar ~ canCrud:", canCrud);
+
   return (
     <TooltipProvider delayDuration={300}>
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-3 border-b bg-card">

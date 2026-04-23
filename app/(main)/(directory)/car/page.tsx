@@ -1,5 +1,6 @@
+import ProtectedRoute from "../../ProtectedRoute";
 import { CarView } from "./CarView";
 
 export default function RegionPage() {
-  return <CarView />;
+  return <ProtectedRoute menuName="car" children={<CarView />} />;
 }
